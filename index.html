@@ -304,7 +304,11 @@ async function generateDoc() {
     }
     var disp = res.headers.get('Content-Disposition') || '';
     var match = disp.match(/filename="?([^"]+)"?/);
-    var filename = match ? match[1] : 'table_definition.xlsx';
+    // Fallback (e.g. if the server filename header is unreadable cross-origin):
+    // pick the extension from the selected format, not a hardcoded .xlsx.
+    var sel = document.querySelector('input[name="export_format"]:checked');
+    var ext = (sel && sel.value === 'html') ? 'html' : 'xlsx';
+    var filename = match ? match[1] : ('table_definition.' + ext);
     var blob = await res.blob();
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
